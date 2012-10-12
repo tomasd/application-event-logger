@@ -7,16 +7,42 @@ Uses SQLAlchemy as DB backend and blinker for signaling.
 
 Usage
 -----
-At first configure event logger
+At first configure event logger. You need to create custom mapped class
+inherited from `EventObject` and connect it with the signal name:
 
-    >> import eventlogger
+    >> import eventlogger, sqlalchemy as as, sqlalchemy.orm as orm
+    >> class UserEvent(eventlogger.EventObject):
+            # id, event and type columns are already included in EventObject
+            company_id = sa.Column(sa.Integer, sa.ForeignKey('company.id'))
+            company = orm.relationship('company')
+
+            customer_id = sa.Column(sa.Integer, sa.ForeignKey('customer.id'))
+            customer = orm.relationship('Customer')
+
+            def __repr__(self):
+                return '<UserEvent %r, %r, %r, %r, %r >' % (
+                    self.created, self.event, self.type, self.company, self.user)
+
+    >> user_event = eventlogger.connect('user', UserEvent)
+
+You can even use custom blinker `Namespace`:
+
+    >> mynamespace = blinker.Namespace('mynamespace')
+    >> user_event = eventlogger.connect('user', UserEvent, namespace=mynamespace)
+
+For proper use, you have to provide active SQLAlchemy session:
+    
     >> eventlogger.open(session)
 
-then emit events
+then emit events, through the `eventlogger`
 
-    >> eventlogger.send('user', 'login', company=user.company, user=user)
+    >> eventlogger.send_signal('user', 'login', company=user.company, user=user)
 
-and finally display get and display events in report
+or directly through the blinker
+
+    >> user_event.send('login', company=user.company, user=user)
+
+finally get and display events in the report
 
     >> from datetime import date
     >> events = eventlogger.get_events(['user', 'campaign'], start=date(2010, 1, 1))
@@ -24,9 +50,9 @@ and finally display get and display events in report
     >> from pprint import pprint
     >> pprint(events)
     [
-      (datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'user', 'login', 1, 2)
+      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'user', 'login', <Company 1>, <User 1> >
     ]
 
-If you are good programmer, then close the logger:
+If you are good programmer, then close the logger (necessary for web applications after request):
   
     eventlogger.close()
