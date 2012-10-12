@@ -12,7 +12,7 @@ inherited from `EventObject` and connect it with the signal name:
 
     >> import eventlogger, sqlalchemy as as, sqlalchemy.orm as orm
     >> class UserEvent(eventlogger.EventObject):
-            # id, event and type columns are already included in EventObject
+            # id, event columns are already included in EventObject
             company_id = sa.Column(sa.Integer, sa.ForeignKey('company.id'))
             company = orm.relationship('company')
 
@@ -20,8 +20,8 @@ inherited from `EventObject` and connect it with the signal name:
             customer = orm.relationship('Customer')
 
             def __repr__(self):
-                return '<UserEvent %r, %r, %r, %r, %r >' % (
-                    self.created, self.event, self.type, self.company, self.user)
+                return '<UserEvent %r, %r, %r, %r >' % (
+                    self.created, self.event, self.company, self.user)
 
     >> user_event = eventlogger.connect('user', UserEvent)
 
@@ -50,8 +50,8 @@ finally get and display events in the report
     >> from pprint import pprint
     >> pprint(events)
     [
-      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'user', 'login', <Company 1>, <User 1> >,
-      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 49, 628576), 'user', 'login', <Company 1>, <User 1> >
+      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'login', <Company 1>, <User 1> >,
+      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 49, 628576), 'login', <Company 1>, <User 1> >
     ]
 
 If you are good programmer, then close the logger (necessary for web applications after request):
