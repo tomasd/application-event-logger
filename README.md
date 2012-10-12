@@ -11,8 +11,8 @@ At first configure event logger. You need to create custom mapped class
 inherited from `EventObject` and connect it with the signal name:
 
     >> import eventlogger, sqlalchemy as as, sqlalchemy.orm as orm
-    >> class UserEvent(eventlogger.EventObject):
-            # id, event columns are already included in EventObject
+    >> class UserEvent(eventlogger.EventObject, Base):
+            # id, event and created columns are already included in EventObject
             company_id = sa.Column(sa.Integer, sa.ForeignKey('company.id'))
             company = orm.relationship('company')
 
@@ -25,13 +25,8 @@ inherited from `EventObject` and connect it with the signal name:
 
     >> user_event = eventlogger.connect('user', UserEvent)
 
-You can even use custom blinker `Namespace`:
-
-    >> mynamespace = blinker.Namespace('mynamespace')
-    >> user_event = eventlogger.connect('user', UserEvent, namespace=mynamespace)
-
 For proper use, you have to provide active SQLAlchemy session:
-    
+
     >> eventlogger.open(session)
 
 then emit events, through the `eventlogger`
@@ -46,7 +41,7 @@ finally get and display events in the report
 
     >> from datetime import date
     >> events = eventlogger.get_events(['user', 'campaign'], start=date(2010, 1, 1))
-    
+
     >> from pprint import pprint
     >> pprint(events)
     [
@@ -55,5 +50,5 @@ finally get and display events in the report
     ]
 
 If you are good programmer, then close the logger (necessary for web applications after request):
-  
+
     eventlogger.close()
