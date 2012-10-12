@@ -50,7 +50,8 @@ finally get and display events in the report
     >> from pprint import pprint
     >> pprint(events)
     [
-      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'user', 'login', <Company 1>, <User 1> >
+      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'user', 'login', <Company 1>, <User 1> >,
+      <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 49, 628576), 'user', 'login', <Company 1>, <User 1> >
     ]
 
 If you are good programmer, then close the logger (necessary for web applications after request):
