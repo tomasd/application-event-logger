@@ -16,24 +16,22 @@ class MyEvent(eventlogger.EventObject, Model):
 class EventLoggerTest(unittest.TestCase):
     def setUp(self):
         self.connection = sa.create_engine('sqlite://')
-        Session = orm.sessionmaker(bind=self.connection)
-        self.session = Session()
+        self.Session = orm.sessionmaker(bind=self.connection)
+        self.session = self.Session()
         Model.bind = self.connection
         Model.metadata.create_all(bind=self.connection)
-
+        self.eventlogger = eventlogger.EventLogger(lambda : self.session)
 
 
     def test_connect(self):
-        eventlogger.connect('user', MyEvent)
+        self.eventlogger.connect('user', MyEvent)
 
     def test_emit(self):
-        eventlogger.connect('user', MyEvent)
+        self.eventlogger.connect('user', MyEvent)
 
-        eventlogger.open(self.session)
+        self.eventlogger.send_signal('user', 'login')
 
-        eventlogger.send_signal('user', 'login')
-
-        events = eventlogger.get_events('user')
+        events = self.eventlogger.get_events('user')
 
         self.assertEquals(1, len(events))
 
@@ -41,13 +39,11 @@ class EventLoggerTest(unittest.TestCase):
         self.assertEquals('login', event.event)
 
     def test_emit_through_signal(self):
-        signal = eventlogger.connect('user', MyEvent)
-
-        eventlogger.open(self.session)
+        signal = self.eventlogger.connect('user', MyEvent)
 
         signal.send('login')
 
-        events = eventlogger.get_events('user')
+        events = self.eventlogger.get_events('user')
 
         self.assertEquals(1, len(events))
 
@@ -55,13 +51,13 @@ class EventLoggerTest(unittest.TestCase):
         self.assertEquals('login', event.event)
 
     def test_emit_param(self):
-        eventlogger.connect('user', MyEvent)
+        self.eventlogger.connect('user', MyEvent)
 
-        eventlogger.open(self.session)
 
-        eventlogger.send_signal('user', 'login', param='xxx')
 
-        events = eventlogger.get_events('user')
+        self.eventlogger.send_signal('user', 'login', param='xxx')
+
+        events = self.eventlogger.get_events('user')
 
         self.assertEquals(1, len(events))
 

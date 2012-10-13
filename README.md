@@ -10,7 +10,9 @@ Usage
 At first configure event logger. You need to create custom mapped class
 inherited from `EventObject` and connect it with the signal name:
 
-    >> import eventlogger, sqlalchemy as as, sqlalchemy.orm as orm
+    >> import sqlalchemy as as, sqlalchemy.orm as orm
+    >> from eventlogger import EventLogger
+    >> eventlogger = EventLogger(lambda: session)
     >> class UserEvent(eventlogger.EventObject, Base):
             # id, event and created columns are already included in EventObject
             company_id = sa.Column(sa.Integer, sa.ForeignKey('company.id'))
@@ -24,10 +26,6 @@ inherited from `EventObject` and connect it with the signal name:
                     self.created, self.event, self.company, self.user)
 
     >> user_event = eventlogger.connect('user', UserEvent)
-
-For proper use, you have to provide active SQLAlchemy session:
-
-    >> eventlogger.open(session)
 
 then emit events, through the `eventlogger`
 
@@ -48,7 +46,3 @@ finally get and display events in the report
       <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 48, 628576), 'login', <Company 1>, <User 1> >,
       <UserEvent datetime.datetime(2012, 10, 12, 16, 35, 49, 628576), 'login', <Company 1>, <User 1> >
     ]
-
-If you are good programmer, then close the logger (necessary for web applications after request):
-
-    eventlogger.close()

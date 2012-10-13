@@ -9,5 +9,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['sqlalchemy', 'blinker'],
-    test_suite='tests'
+    test_suite='eventloggertests'
 )
